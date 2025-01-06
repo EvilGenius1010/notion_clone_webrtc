@@ -1,6 +1,8 @@
 import { WebSocketServer } from "ws";
 import { Request,Response } from "express";
 import { IncomingConnectionStruct, UtilMessages } from "./types";
+import { createRoom } from "./utils";
+const pinoLogger = require("pino-http")
 const express = require('express')
 const app = express();
 // const wss = new WebSocket(`ws://localhost:${process.env.PORT}`)
@@ -31,6 +33,13 @@ app.use((req: Request, res: Response, next: any) => {
   next();
 });
 
+app.use((req: Request, res: Response, next: any) => {
+//authentication middleware
+
+next();
+})
+
+app.use(pinoLogger())
 
 wss.on('connection',(ws)=>{
     ws.on('error', console.error);
@@ -39,7 +48,8 @@ wss.on('connection',(ws)=>{
         // let inputData = data as IncomingConnectionStruct
         const data1 = data as IncomingConnectionStruct
         if(data1.type===UtilMessages.createRoom){
-
+          app.log.info("Testing pino logger")
+          // createRoom()
         }
 
         else if(data1.type===UtilMessages.joinRoom){
