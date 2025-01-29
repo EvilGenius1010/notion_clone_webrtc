@@ -1,5 +1,5 @@
 import prisma from "./prisma";
 
 export async function fetchFromDB(username:string){
-    const fetchReq = await prisma.user.find
+    // const fetchReq = await prisma.
 }
