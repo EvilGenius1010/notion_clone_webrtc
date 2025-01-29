@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws";
 import { Request,Response } from "express";
-import { IncomingConnectionStruct, UtilMessages } from "./types";
-import { createRoom } from "./utils";
+import { IncomingConnectionStruct, Room, UtilMessages } from "./types";
+import { checkUserPermissions, createRoom } from "./utils";
 const pinoLogger = require("pino-http")
 const express = require('express')
 const app = express();
@@ -41,32 +41,43 @@ next();
 
 app.use(pinoLogger())
 
+// wss.on('connection',(ws)=>{
+//     ws.on('error', console.error);
+
+//     ws.on('message',(data:any)=>{ //remove the any
+//         // let inputData = data as IncomingConnectionStruct
+//         const data1 = data as IncomingConnectionStruct
+//         if(data1.type===UtilMessages.createRoom){
+//           app.log.info("Testing pino logger")
+//           // createRoom()
+//         }
+
+//         else if(data1.type===UtilMessages.joinRoom){
+//             //check if corresponds to invites sent out.
+//         }
+//         else if(data1.type===UtilMessages.rejoinRoom){
+//             //check if already exists in array of ppl whove been sent invites or have previously joined
+//         }
+
+
+//     })
+// })
+
+
 wss.on('connection',(ws)=>{
     ws.on('error', console.error);
+    ws.on('message',(data:IncomingConnectionStruct)=>{
+        if(data.type===UtilMessages.createRoom){
+          //write logic to write to db
+          checkUserPermissions(data.metadata.username); //checks if such a username exists.
+          const newRoom:Readonly<Room> = createRoom(data.metadata)
+          //push to db
 
-    ws.on('message',(data:any)=>{ //remove the any
-        // let inputData = data as IncomingConnectionStruct
-        const data1 = data as IncomingConnectionStruct
-        if(data1.type===UtilMessages.createRoom){
-          app.log.info("Testing pino logger")
-          // createRoom()
-        }
+          
 
-        else if(data1.type===UtilMessages.joinRoom){
-            //check if corresponds to invites sent out.
-        }
-        else if(data1.type===UtilMessages.rejoinRoom){
-            //check if already exists in array of ppl whove been sent invites or have previously joined
-        }
-
-
+        }    
     })
 })
-
-
-// app.post('/',async(req:Request,res:Response)=>{
-
-// })
 
 app.listen(process.env.PORT,()=>{
     console.log(`Listening on port ${process.env.PORT}`)
